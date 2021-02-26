@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Segment, Header, Form, Button } from 'semantic-ui-react';
+import { Segment, Header, Button, FormField, Label } from 'semantic-ui-react';
 import cuid from 'cuid';
 import {Link} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {updateEvent, createEvent} from "../eventActions";
-import {Formik} from "formik";
+import {Formik, Form, Field, ErrorMessage} from "formik";
+import * as yup from 'yup'
+import MyTextInput from "../../../app/common/form/MyTextInput";
 
 
 export default function EventForm({match, history}) {
@@ -20,26 +22,29 @@ export default function EventForm({match, history}) {
     date: '',
   };
 
-  const [values, setValues] = useState(initialValues);
+  const validationSchema = yup.object({
+      title: yup.string().required('You must provide a title')
+  })
 
-  function handleFormSubmit() {
-    selectedEvent
-      ? dispatch(updateEvent({ ...selectedEvent, ...values }))
-      : dispatch(createEvent({
-          ...values,
-          id: cuid(),
-          hostedBy: 'Bob',
-          attendees: [],
-          hostPhotoURL: '/assets/user.png',
-        }));
-    history.push('/events')
 
-  }
+  // function handleFormSubmit() {
+  //   selectedEvent
+  //     ? dispatch(updateEvent({ ...selectedEvent, ...values }))
+  //     : dispatch(createEvent({
+  //         ...values,
+  //         id: cuid(),
+  //         hostedBy: 'Bob',
+  //         attendees: [],
+  //         hostPhotoURL: '/assets/user.png',
+  //       }));
+  //   history.push('/events')
+  //
+  // }
 
-  function handleInputChange(e) {
-    const { name, value } = e.target;
-    setValues({ ...values, [name]: value });
-  }
+  // function handleInputChange(e) {
+  //   const { name, value } = e.target;
+  //   setValues({ ...values, [name]: value });
+  // }
 
   return (
     <Segment clearing>
@@ -47,63 +52,27 @@ export default function EventForm({match, history}) {
       <Formik
           initialValues={initialValues}
           onSubmit={values => console.log(values)}
+          validationSchema={validationSchema}
       >
-        {({values, handleSubmit, handleChange})=> (
-            <Form onSubmit={handleSubmit}>
-              <Form.Field>
-                <input
-                    type='text'
-                    placeholder='Event title'
-                    name='title'
-                    value={values.title}
-                    onChange={handleChange}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                    type='text'
-                    placeholder='Category'
-                    name='category'
-                    value={values.category}
-                    onChange={handleChange}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                    type='text'
-                    placeholder='Description'
-                    name='description'
-                    value={values.description}
-                    onChange={handleChange}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                    type='text'
-                    placeholder='City'
-                    name='city'
-                    value={values.city}
-                    onChange={handleChange}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                    type='text'
-                    placeholder='Venue'
-                    name='venue'
-                    value={values.venue}
-                    onChange={handleChange}
-                />
-              </Form.Field>
-              <Form.Field>
-                <input
-                    type='date'
-                    placeholder='Date'
-                    name='date'
-                    value={values.date}
-                    onChange={handleChange}
-                />
-              </Form.Field>
+
+            <Form className={'ui form'}>
+             <MyTextInput name={'title'} placeholder={'Event title'}/>
+                <FormField>
+                    <Field name={'category'} placeholder={'Category'}/>
+                </FormField>
+                <FormField>
+                    <Field name={'description'} placeholder={'Description'}/>
+                </FormField>
+                <FormField>
+                    <Field name={'city'} placeholder={'City'}/>
+                </FormField>
+                <FormField>
+                    <Field name={'venue'} placeholder={'Venue'}/>
+                </FormField>
+                <FormField>
+                    <Field name={'date'} placeholder={'Event date'} type={'date'}/>
+                </FormField>
+
               <Button type='submit' floated='right' positive content='Submit' />
               <Button
                   as={Link} to={'events'}
@@ -112,7 +81,7 @@ export default function EventForm({match, history}) {
                   content='Cancel'
               />
             </Form>
-        )}
+
 
       </Formik>
 
